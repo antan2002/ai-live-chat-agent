@@ -11,6 +11,10 @@ const app = express();
 app.use(corsMiddleware);
 app.use(express.json({ limit: '16kb' }));
 
+app.get('/', (_req, res) => {
+  res.send('AI Live Chat Agent Backend is running');
+});
+
 app.use('/chat', chatRouter);
 
 app.get('/health', (_req, res) => {
