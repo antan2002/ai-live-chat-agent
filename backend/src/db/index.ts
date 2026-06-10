@@ -3,6 +3,9 @@ import type { Message } from '../types/chat.js';
 
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
   max: 10,
 });
 
