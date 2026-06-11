@@ -22,6 +22,14 @@ function saveSessionId(id: string): void {
   localStorage.setItem('sessionId', id);
 }
 
+function parseReply(raw: string): { content: string; options?: string[] } {
+  const match = raw.match(/([\s\S]*?)\{"options":\s*(\[[\s\S]*?\])\}\s*$/);
+  if (!match) return { content: raw };
+  try {
+    return { content: match[1].trim(), options: JSON.parse(match[2]) };
+  } catch { return { content: raw }; }
+}
+
 export function useChat() {
   const [state, setState] = useState<ChatState>({
     messages: [],
@@ -112,12 +120,14 @@ export function useChat() {
           saveSessionId(data.sessionId);
         }
 
+        const parsed = parseReply(data.reply);
+
         const assistantMessage: Message = {
           id: crypto.randomUUID(),
           role: 'assistant',
-          content: data.reply,
+          content: parsed.content,
+          options: parsed.options,
           timestamp: new Date(),
-          options: data.options,
         };
 
         setState(prev => ({

@@ -80,20 +80,6 @@ router.post('/message', async (req, res) => {
         "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.";
     }
 
-    let options: string[] | undefined;
-    const optionsMatch = replyText.match(/\{"options":\s*\[([\s\S]*?)\]\}/);
-    if (optionsMatch) {
-      try {
-        const parsed = JSON.parse(`{"options": [${optionsMatch[1]}]}`);
-        if (Array.isArray(parsed.options) && parsed.options.length > 0) {
-          options = parsed.options;
-          replyText = replyText.replace(optionsMatch[0], '').trim();
-        }
-      } catch {
-        // Invalid options JSON, respond normally
-      }
-    }
-
     const aiMsgId = crypto.randomUUID();
     try {
       await insertMessage(aiMsgId, conversationId, 'ai', replyText);
@@ -104,7 +90,7 @@ router.post('/message', async (req, res) => {
       return;
     }
 
-    res.json({ reply: replyText, sessionId, options });
+    res.json({ reply: replyText, sessionId });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
     console.error('Unexpected error:', msg);
