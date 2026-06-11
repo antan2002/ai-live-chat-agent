@@ -7,6 +7,7 @@ import {
   insertMessage,
   listConversations,
   updateConversationMetadata,
+  deleteConversation,
 } from '../db/index.js';
 import { generateReply, summarizeForSidebar } from '../services/llm.js';
 
@@ -105,6 +106,26 @@ router.get('/conversations', async (_req, res) => {
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
     console.error('List conversations error:', msg);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.delete('/conversation/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    if (!sessionId || sessionId.trim().length === 0) {
+      res.status(400).json({ error: 'sessionId is required' });
+      return;
+    }
+    const deleted = await deleteConversation(sessionId);
+    if (!deleted) {
+      res.status(404).json({ error: 'Conversation not found' });
+      return;
+    }
+    res.json({ success: true });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    console.error('Delete conversation error:', msg);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

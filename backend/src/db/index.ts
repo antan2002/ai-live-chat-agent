@@ -106,6 +106,11 @@ export async function listConversations(
   return result.rows;
 }
 
+export async function deleteConversation(id: string): Promise<boolean> {
+  const result = await pool.query('DELETE FROM conversations WHERE id = $1', [id]);
+  return (result.rowCount ?? 0) > 0;
+}
+
 export async function closePool(): Promise<void> {
   await pool.end();
 }
