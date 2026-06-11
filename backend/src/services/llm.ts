@@ -3,6 +3,20 @@ import type { Message } from '../types/chat.js';
 const MAX_HISTORY = 10;
 const MAX_INPUT_TOKENS = 4000;
 
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  retries = 2,
+  delayMs = 1500
+): Promise<Response> {
+  const response = await fetch(url, options);
+  if (response.status === 429 && retries > 0) {
+    await new Promise(r => setTimeout(r, delayMs));
+    return fetchWithRetry(url, options, retries - 1, delayMs * 2);
+  }
+  return response;
+}
+
 const SYSTEM_PROMPT = `You are a warm, human support agent for Spur, a customer engagement and automation platform. Be friendly and empathetic — customers come to support because they need help. Keep answers short and direct. One question, one clear answer. No unnecessary filler. Keep responses under 4 sentences unless a list is genuinely clearer.
 
 PLATFORM KNOWLEDGE
@@ -202,7 +216,7 @@ export async function summarizeForSidebar(text: string): Promise<string> {
 
   const model = process.env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-exp:free';
 
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  const response = await fetchWithRetry('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -256,7 +270,7 @@ export async function generateReply(
   const model = process.env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-exp:free';
   const messages = buildMessages(history, userMessage);
 
-  const response = await fetch(
+  const response = await fetchWithRetry(
     'https://openrouter.ai/api/v1/chat/completions',
     {
       method: 'POST',

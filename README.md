@@ -139,6 +139,8 @@ OpenRouter gives a single API key that routes to 200+ models, including several 
 
 The model used by default is `google/gemini-2.0-flash-exp:free` — fast, capable, and free. Swapping models is a one-line env var change.
 
+Free tier has rate limits (~20 req/min). The app retries automatically on 429 with exponential backoff (1.5s → 3s). For higher throughput, swap `OPENROUTER_MODEL` for any paid model — no code changes needed.
+
 ### Prompt Strategy
 
 - **System prompt** (~280 lines) defines Spur as a customer engagement platform with knowledge about messaging channels, integrations, bulk campaigns, billing, and account settings
