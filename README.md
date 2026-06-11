@@ -72,7 +72,7 @@ Each layer depends only on the one below it. Routes call Services and Data; Serv
 - **Single custom hook** (`useChat`) manages all chat state — no Redux, no Context API. Correct for this scope.
 - **Session persistence** via `localStorage` — survives page refresh.
 - **Optimistic UI updates** — user message appears immediately, before the API responds.
-- **All styling** in one global CSS file (`App.css`) — Tailwind CSS 4 is installed but unused in JSX.
+- **All styling** in one global CSS file (`App.css`).
 - **No router** — single-page app, one view.
 
 ### File Structure
@@ -141,12 +141,12 @@ The model used by default is `google/gemini-2.0-flash-exp:free` — fast, capabl
 
 ### Prompt Strategy
 
-- **System prompt** (~90 lines) defines Spur as a customer engagement platform with knowledge about messaging channels, integrations, bulk campaigns, billing, and account settings
+- **System prompt** (~280 lines) defines Spur as a customer engagement platform with knowledge about messaging channels, integrations, bulk campaigns, billing, and account settings
 - **Tone rules** — Be warm and natural, use plain text (no markdown), use "happy" and "sorry" naturally, ban on filler phrases
 - **Few-shot examples** — Q&A pairs at the end of the system prompt to steer format, length, and when to ask clarifying questions
 - **Clarifying questions** — When the customer's request is ambiguous, the AI asks a clarifying question and provides clickable option chips instead of guessing
 - **Length cap** — "Keep responses under 4 sentences unless a list is genuinely clearer"
-- **Up to 20 messages** of conversation history included for context
+- **Up to 10 messages** of conversation history included for context
 - **Temperature: 0.3** — keeps answers grounded and consistent
 - **Max tokens: 1024** — enough for any support reply
 - **Sidebar summarization** — First user message summarized to 4-5 words via separate LLM call, stored in `metadata.preview`
@@ -164,7 +164,7 @@ The model used by default is `google/gemini-2.0-flash-exp:free` — fast, capabl
 
 | Method | Endpoint                   | Body                                      | Returns                                                               |
 | ------ | -------------------------- | ----------------------------------------- | --------------------------------------------------------------------- |
-| `POST` | `/chat/message`            | `{ message: string, sessionId?: string }` | `{ reply: string, sessionId: string, options?: string[] }`            |
+| `POST` | `/chat/message`            | `{ message: string, sessionId?: string }` | `{ reply: string, sessionId: string }`            |
 | `GET`  | `/chat/conversations`      | —                                         | `[{ id, preview, created_at }]`                                       |
 | `GET`  | `/chat/history/:sessionId` | —                                         | `[{ id, conversation_id, sender, text, created_at }]`                 |
 
@@ -189,7 +189,7 @@ The spec requires only `POST /chat/message`. The other two endpoints power the c
 | **No accessibility**       | `aria-label` on the toggle and send button only. Would add ARIA live regions, keyboard nav, and proper focus management.                                                                                         |
 | **No streaming**           | The spec doesn't ask for it. Streaming improves perceived speed but adds real complexity: partial state management, assembling the full reply before saving to DB. Not worth the risk of a buggy implementation. |
 | **Single CSS file**        | Works fine for this scope. Would split into per-component CSS modules for anything larger.                                                                                                                       |
-| **Tailwind unused in JSX** | Installed as a dependency but not used. Would either remove it or migrate all styles to Tailwind utilities.                                                                                                      |
+
 
 ### If I had more time
 
