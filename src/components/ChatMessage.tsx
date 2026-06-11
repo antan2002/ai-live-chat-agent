@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Message } from '../types/chat';
 
 interface Props {
@@ -11,6 +12,7 @@ function formatTime(date: Date): string {
 
 export default function ChatMessage({ message, onOptionSelect }: Props) {
   const isUser = message.role === 'user';
+  const [optionsVisible, setOptionsVisible] = useState(true);
 
   return (
     <div className={`message-row ${isUser ? 'message-row--user' : 'message-row--agent'}`}>
@@ -19,10 +21,10 @@ export default function ChatMessage({ message, onOptionSelect }: Props) {
         <div className={`message-bubble ${isUser ? 'bubble--user' : 'bubble--agent'}`}>
           {message.content}
         </div>
-        {message.options && message.options.length > 0 && (
+        {optionsVisible && message.options && message.options.length > 0 && (
           <div className="message-options">
             {message.options.map((opt, i) => (
-              <button key={i} className="option-chip" onClick={() => onOptionSelect?.(opt)}>
+              <button key={i} className="option-chip" onClick={() => { setOptionsVisible(false); onOptionSelect?.(opt); }}>
                 {opt}
               </button>
             ))}
