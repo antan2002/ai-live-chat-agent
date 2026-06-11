@@ -1,8 +1,12 @@
 import 'dotenv/config';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import { corsMiddleware } from './middleware/cors.js';
 import { ensureTables, closePool } from './db/index.js';
 import chatRouter from './routes/chat.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const PORT = parseInt(process.env.PORT || '3001', 10);
 
@@ -11,14 +15,16 @@ const app = express();
 app.use(corsMiddleware);
 app.use(express.json({ limit: '16kb' }));
 
-app.get('/', (_req, res) => {
-  res.send('AI Live Chat Agent Backend is running');
-});
-
 app.use('/chat', chatRouter);
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
+});
+
+app.use(express.static(path.join(__dirname, '../../dist')));
+
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(__dirname, '../../dist', 'index.html'));
 });
 
 async function start() {
